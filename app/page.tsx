@@ -63,12 +63,12 @@ export default function Home() {
     );
   };
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Fond noir */}
       <div className="absolute inset-0 bg-black"></div>
 
-      {/* Voile vert transparent */}
-      <div className="absolute inset-0 bg-green-500/10"></div>
+      {/* Voile vert transparent - très léger */}
+      <div className="absolute inset-0 bg-green-500/5"></div>
 
       {/* Particules en arrière-plan */}
       <div className="absolute inset-0 z-0">
@@ -89,40 +89,40 @@ export default function Home() {
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4">
         <div className="text-center max-w-3xl">
           {/* Espace pour le logo */}
-          <div className="mb-6 flex justify-center">
-            <div className="w-48 h-48 bg-black/40 backdrop-blur-sm border-2 border-green-500/30 rounded-2xl flex items-center justify-center">
-              <span className="text-green-400/50 text-base">LOGO</span>
+          <div className="mb-4 sm:mb-6 flex justify-center">
+            <div className="w-32 h-32 sm:w-48 sm:h-48 bg-black/40 backdrop-blur-sm border-2 border-green-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center">
+              <span className="text-green-400/50 text-xs sm:text-base">LOGO</span>
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-5 font-[family-name:var(--font-farisea)]">
+          <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4 font-[family-name:var(--font-farisea)]">
             BIENVENUE CHEZ CBD SERVICE
           </h1>
 
-          <div className="text-white/90 leading-relaxed mb-8 space-y-5">
+          <div className="text-white/90 leading-relaxed mb-4 sm:mb-6 space-y-2 sm:space-y-4">
             {/* Introduction */}
-            <p className="text-base text-white/95 max-w-2xl mx-auto font-semibold">
+            <p className="text-xs sm:text-base text-white/95 max-w-2xl mx-auto font-semibold">
               Créé en 2017, CBD SERVICE est spécialisée dans la vente de produits de haute qualité,
               avec des prix défiant toute concurrence et une fiabilité du service irréprochable.
             </p>
 
             {/* Séparateur */}
-            <div className="w-20 h-px bg-green-500/50 mx-auto"></div>
+            <div className="w-16 sm:w-20 h-px bg-green-500/50 mx-auto"></div>
 
             {/* Services */}
-            <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-green-500/20 max-w-md mx-auto">
-              <h2 className="text-base font-bold text-green-300 mb-2 text-center">
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-4 border border-green-500/20 max-w-md mx-auto">
+              <h2 className="text-xs sm:text-base font-bold text-green-300 mb-1.5 sm:mb-2 text-center">
                 Nous disposons de 3 services
               </h2>
 
-              <div className="space-y-2 text-left text-white/90 text-xs">
+              <div className="space-y-1 sm:space-y-2 text-left text-white/90 text-[10px] sm:text-xs">
                 {/* Service 1 & 2 */}
                 <div className="space-y-0.5">
                   <p className="font-semibold flex items-start">
-                    <span className="text-green-400 mr-1.5 text-sm">•</span>
+                    <span className="text-green-400 mr-1.5 text-xs sm:text-sm">•</span>
                     <span>2 services Meet-Up & Livraison</span>
                   </p>
-                  <div className="ml-4 space-y-0 text-white/70" style={{ fontSize: '0.7rem' }}>
+                  <div className="ml-3 sm:ml-4 space-y-0 text-white/70 text-[10px] sm:text-[11px]">
                     <p>→ 1 basé dans le 31</p>
                     <p>→ 1 basé dans le 94</p>
                   </div>
@@ -130,13 +130,13 @@ export default function Home() {
 
                 {/* Séparateur entre services */}
                 <div className="text-center">
-                  <span className="text-green-400/60 font-bold text-xs">&</span>
+                  <span className="text-green-400/60 font-bold text-[10px] sm:text-xs">&</span>
                 </div>
 
                 {/* Service 3 */}
                 <div>
                   <p className="font-semibold flex items-start">
-                    <span className="text-green-400 mr-1.5 text-sm">•</span>
+                    <span className="text-green-400 mr-1.5 text-xs sm:text-sm">•</span>
                     <span>1 service d'envoi postal international</span>
                   </p>
                 </div>
@@ -144,10 +144,10 @@ export default function Home() {
             </div>
 
             {/* Séparateur */}
-            <div className="w-20 h-px bg-green-500/50 mx-auto"></div>
+            <div className="w-16 sm:w-20 h-px bg-green-500/50 mx-auto"></div>
 
             {/* Conclusion */}
-            <p className="text-base text-white/95 max-w-2xl mx-auto font-semibold">
+            <p className="text-xs sm:text-base text-white/95 max-w-2xl mx-auto font-semibold">
               Reconnue pour notre travail de longue date, CBD SERVICE s'appuie sur une logistique
               infaillible et une organisation rigoureuse afin de garantir une expérience sérieuse,
               rapide et efficace pour chaque client.
