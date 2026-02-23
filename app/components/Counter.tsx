@@ -23,7 +23,7 @@ function Number({ mv, number, height }: { mv: MotionValue<number>; number: numbe
 
 function Digit({ place, value, height, digitStyle }: { place: number | string; value: number; height: number; digitStyle?: any }) {
   const isDecimal = place === '.';
-  const valueRoundedToPlace = isDecimal ? 0 : Math.floor(value / Number(place));
+  const valueRoundedToPlace = isDecimal ? 0 : Math.floor(value / (typeof place === 'number' ? place : 1));
 
   // Always call hooks in the same order
   const animatedValue = useMotionValue(valueRoundedToPlace);
