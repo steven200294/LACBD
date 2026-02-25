@@ -113,66 +113,81 @@ export default function ShopPage() {
       <div className="absolute inset-0 bg-green-500/10"></div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b-2 border-green-500/50 shadow-[0_4px_20px_rgba(34,197,94,0.2)]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b-2 border-green-500/50 shadow-[0_4px_30px_rgba(34,197,94,0.25)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
+
             {/* Logo / Brand */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/home')}
-                className="text-white hover:text-green-400 transition-colors"
+                className="group flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 hover:border-green-500/60 transition-all shadow-[0_0_10px_rgba(34,197,94,0.15)]"
                 aria-label="Retour"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <svg className="w-4 h-4 text-green-400 group-hover:text-green-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </button>
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white font-[family-name:var(--font-farisea)]">
-                CBD SERVICE
-              </h1>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.5)]">
+                  <span className="text-black font-black text-xs">AF</span>
+                </div>
+                <h1 className="text-base sm:text-lg md:text-xl font-bold text-white font-[family-name:var(--font-farisea)] tracking-wider">
+                  Arai <span className="text-green-400">Farmers</span>
+                </h1>
+              </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex items-center gap-4 sm:gap-6">
-              {/* Compteur de déconnexion */}
-              <div className="flex items-center gap-3">
-                <span className="text-white/80 text-xs sm:text-sm font-semibold hidden md:block">
-                  Il vous reste
-                </span>
-                <div className="flex items-center gap-1 scale-75 sm:scale-90 md:scale-100">
+            {/* Timer + Déconnexion */}
+            <div className="flex items-center gap-3 sm:gap-4">
+
+              {/* Timer */}
+              <div className="flex items-center gap-2 bg-black/50 border border-green-500/30 rounded-xl px-3 py-1.5 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                <span className="text-white/50 text-[10px] uppercase tracking-wider hidden sm:block">Session</span>
+                <div className="flex items-center gap-1">
                   <SimpleCounter
                     value={Math.floor(timeLeft / 3600)}
-                    fontSize={24}
+                    fontSize={18}
                     textColor="#22c55e"
                     fontWeight={900}
                   />
-                  <span className="text-lg text-green-500 font-bold">:</span>
+                  <span className="text-green-500 font-bold text-sm">:</span>
                   <SimpleCounter
                     value={Math.floor((timeLeft % 3600) / 60)}
-                    fontSize={24}
+                    fontSize={18}
                     textColor="#22c55e"
                     fontWeight={900}
                   />
-                  <span className="text-lg text-green-500 font-bold">:</span>
+                  <span className="text-green-500 font-bold text-sm">:</span>
                   <SimpleCounter
                     value={timeLeft % 60}
-                    fontSize={24}
+                    fontSize={18}
                     textColor="#22c55e"
                     fontWeight={900}
                   />
                 </div>
-                <span className="text-white/80 text-xs sm:text-sm font-semibold hidden md:block">
-                  avant d'être déconnecté
-                </span>
               </div>
 
+              {/* Bouton Déconnexion avec glass effect */}
               <button
                 onClick={() => router.push('/')}
-                className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 border border-green-500/50 rounded-lg transition-all font-semibold text-sm sm:text-base shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] uppercase"
+                className="group relative flex flex-col items-center"
+                aria-label="Déconnexion"
               >
-                Déconnexion
+                <div className="relative w-10 h-10 perspective-[200px]">
+                  {/* Back panel */}
+                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-600 to-red-800 transition-transform duration-300 origin-bottom-right rotate-[15deg] group-hover:rotate-[25deg] group-hover:-translate-x-1 group-hover:-translate-y-1 shadow-[0.3em_-0.3em_0.5em_rgba(0,0,0,0.3)]"></span>
+                  {/* Front panel */}
+                  <span className="absolute inset-0 rounded-xl bg-white/15 border border-white/30 backdrop-blur-sm flex items-center justify-center transition-transform duration-300 group-hover:translate-z-8">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  </span>
+                </div>
+                <span className="text-white/60 text-[9px] uppercase tracking-wider mt-1 group-hover:text-red-400 transition-colors">Quitter</span>
               </button>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
@@ -214,36 +229,34 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto">
           {/* Filtres et recherche */}
           <div className="mb-8">
-            <div className="bg-black/60 backdrop-blur-md border-2 border-green-500/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-[0_0_30px_rgba(34,197,94,0.3),0_0_60px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.1)]">
-              <div className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center">
-                {/* Barre de recherche */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <svg
-                    className="w-6 h-6 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Rechercher un produit..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1 sm:min-w-[240px] px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base bg-black/40 backdrop-blur-sm border-2 border-green-500/50 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-green-500/80 transition-colors shadow-[0_0_20px_rgba(34,197,94,0.2)]"
-                  />
-                </div>
+            <div className="bg-black/60 backdrop-blur-md border border-green-500/30 rounded-2xl p-4 sm:p-5 shadow-[0_0_30px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.05)]">
+              {/* Barre de recherche */}
+              <div className="relative mb-4">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Rechercher un produit..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-black/50 border border-green-500/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-green-500/60 transition-colors"
+                />
+              </div>
 
-                {/* Catégories */}
+              {/* Séparateur */}
+              <div className="h-px bg-green-500/10 mb-4" />
+
+              {/* Catégories */}
+              <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+                    className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${
                       selectedCategory === category
-                        ? 'bg-green-500 text-black shadow-[0_0_20px_rgba(34,197,94,0.5)]'
-                        : 'bg-black/40 backdrop-blur-sm text-white border-2 border-green-500/30 hover:border-green-500/50'
+                        ? 'bg-green-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.5)]'
+                        : 'bg-black/40 text-white/70 border border-green-500/20 hover:border-green-500/50 hover:text-white'
                     }`}
                   >
                     {category}
