@@ -248,12 +248,12 @@ export default function ShopPage() {
               <div className="h-px bg-green-500/10 mb-4" />
 
               {/* Catégories */}
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
                 {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${
+                    className={`px-2 py-1.5 rounded-lg font-semibold text-[11px] sm:text-xs transition-all text-center truncate ${
                       selectedCategory === category
                         ? 'bg-green-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.5)]'
                         : 'bg-black/40 text-white/70 border border-green-500/20 hover:border-green-500/50 hover:text-white'
