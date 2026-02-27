@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import logoSrc from '../Logo/logo.jpeg';
 import { FaInstagram, FaTiktok, FaTelegram, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { SiSignal } from 'react-icons/si';
 import { GiPotato } from 'react-icons/gi';
@@ -14,11 +16,12 @@ export default function HomePage() {
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(86400); // 24 heures en secondes
+  const [timeLeft, setTimeLeft] = useState(86400);
+  const [modal, setModal] = useState<{ open: boolean; label: string; url: string } | null>(null); // 24 heures en secondes
 
   const particleColors = useMemo(() => [
-    '#00ff00', '#10b981', '#22c55e', '#34d399',
-    '#4ade80', '#86efac', '#00ff00', '#10b981'
+    '#ff00ff', '#cc44ff', '#ff44cc', '#dd00ff',
+    '#ff66ff', '#bb33ff', '#ff33dd', '#ee44ff'
   ], []);
 
   useEffect(() => {
@@ -43,8 +46,8 @@ export default function HomePage() {
         <Particles particleCount={200} particleColors={particleColors} particleBaseSize={180} />
       </div>
 
-      {/* Voile vert transparent */}
-      <div className="absolute inset-0 bg-green-500/10"></div>
+      {/* Voile violet transparent */}
+      <div className="absolute inset-0 bg-purple-500/10"></div>
 
       {/* Contenu au premier plan */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
@@ -52,89 +55,83 @@ export default function HomePage() {
           {/* Box horizontale - Contact réseaux sociaux */}
           <div className="inline-block w-full">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 font-[family-name:var(--font-farisea)]">Retrouvez-nous Sur</h2>
-            <div className="bg-black/40 backdrop-blur-sm border-2 border-green-500/50 rounded-2xl px-6 sm:px-10 md:px-14 py-4 sm:py-6 md:py-8 shadow-[0_0_30px_rgba(34,197,94,0.3),0_0_60px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.1)]">
+            <div className="bg-black/40 backdrop-blur-sm border-2 border-pink-500/50 rounded-2xl px-6 sm:px-10 md:px-14 py-4 sm:py-6 md:py-8 shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.1)]">
               {/* Réseaux sociaux + Contact direct */}
               <GlassIcons
                 className="cols-5"
                 items={[
-                  { icon: <FaInstagram />, color: 'purple', label: 'Instagram' },
-                  { icon: <FaTiktok />, color: 'indigo', label: 'TikTok' },
-                  { icon: <FaTelegram />, color: 'blue', label: 'Telegram' },
-                  { icon: <GiPotato />, color: 'orange', label: 'Potato' },
-                  { icon: <SiSignal />, color: 'green', label: 'Signal' },
+                  { icon: <FaInstagram />, color: 'purple', label: 'Instagram', onClick: () => setModal({ open: true, label: 'Instagram', url: 'https://instagram.com' }) },
+                  { icon: <FaTiktok />, color: 'indigo', label: 'TikTok', onClick: () => setModal({ open: true, label: 'TikTok', url: 'https://tiktok.com' }) },
+                  { icon: <FaTelegram />, color: 'blue', label: 'Telegram', onClick: () => setModal({ open: true, label: 'Telegram', url: 'https://t.me' }) },
+                  { icon: <GiPotato />, color: 'orange', label: 'Potato', onClick: () => setModal({ open: true, label: 'Potato', url: 'https://potato.im' }) },
+                  { icon: <SiSignal />, color: 'green', label: 'Signal', onClick: () => setModal({ open: true, label: 'Signal', url: 'https://signal.me' }) },
                 ]}
               />
             </div>
 
             {/* Séparateur "OU" avec ligne verte */}
             <div className="mt-6 sm:mt-8 flex items-center gap-4">
-              <div className="flex-1 h-px bg-green-500/50"></div>
-              <span className="text-green-400 font-bold text-sm">OU</span>
-              <div className="flex-1 h-px bg-green-500/50"></div>
+              <div className="flex-1 h-px bg-pink-500/50"></div>
+              <span className="text-pink-400 font-bold text-sm">OU</span>
+              <div className="flex-1 h-px bg-pink-500/50"></div>
             </div>
 
             {/* Box de connexion */}
-            <div className="mt-6 sm:mt-8 bg-black/60 backdrop-blur-md border-2 border-green-500/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 w-full shadow-[0_0_30px_rgba(34,197,94,0.3),0_0_60px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.1)]">
+            <div className="mt-6 sm:mt-8 bg-black/60 backdrop-blur-md border-2 border-pink-500/50 rounded-2xl sm:rounded-3xl w-full overflow-hidden shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2)]">
 
-                {/* Icône cadenas */}
-                <div className="flex justify-center mb-4">
-                  <GlassIcons
-                    className="cols-1"
-                    items={[
-                      {
-                        icon: (
-                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1em', height: '1em' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                        ),
-                        color: 'dark',
-                        label: 'Accès sécurisé',
-                      },
-                    ]}
-                  />
+                {/* Logo bannière en haut avec texte par-dessus */}
+                <div className="w-full h-72 relative">
+                  <Image src={logoSrc} alt="Arai Farmers" className="w-full h-full object-cover" fill style={{ filter: 'blur(2px)' }} />
+                  <div className="absolute inset-0 bg-linear-to-b from-black/20 via-black/50 to-black/90" />
+                  {/* Texte centré sur l'image */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
+                    <div className="w-10 h-10 rounded-xl bg-black/60 border border-pink-500/30 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+                      <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <span className="text-pink-400 text-sm uppercase tracking-[0.2em] font-bold mb-2 drop-shadow-lg">Accès sécurisé</span>
+                    <p className="text-white text-base font-bold text-center drop-shadow-lg">Contactez le support pour obtenir votre code d'accès.</p>
+                    <p className="text-white/80 text-sm font-semibold mt-1 text-center drop-shadow-lg">Sans celui-ci, la connexion est impossible.</p>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-px bg-pink-500/40 shadow-[0_0_10px_rgba(236,72,153,0.6)]" />
                 </div>
 
-                {/* Titre */}
-                <div className="mb-5 text-center space-y-1">
-                  <p className="text-white/60 text-xs sm:text-sm uppercase tracking-widest font-semibold">Accès sécurisé</p>
-                  <h3 className="text-sm sm:text-base font-semibold text-white/90 leading-relaxed">
-                    Contactez le support pour obtenir votre code d'accès.
-                  </h3>
-                  <p className="text-white/50 text-xs">Sans celui-ci, la connexion est impossible.</p>
-                </div>
+                {/* Contenu en dessous */}
+                <div className="p-6 sm:p-8 md:p-12">
+
+                {/* Séparateur */}
+                <div className="h-px bg-pink-500/10 mb-6" />
 
                 {/* Compteur */}
-                <div className="mb-6 bg-black/40 border border-green-500/20 rounded-xl px-4 py-3 text-center">
-                  <p className="text-white/50 text-[11px] uppercase tracking-wider mb-2">Votre code expire dans</p>
-                  <div className="flex justify-center items-center gap-1 sm:gap-2">
-                    <div className="flex flex-col items-center">
-                      <div className="scale-75 sm:scale-90">
-                        <SimpleCounter value={hours} fontSize={36} textColor="#22c55e" fontWeight={900} />
-                      </div>
-                      <span className="text-white/30 text-[9px] uppercase tracking-wider">heures</span>
+                <div className="mb-6">
+                  <p className="text-white/40 text-[10px] uppercase tracking-[0.15em] text-center mb-3">Votre code expire dans</p>
+                  <div className="flex justify-center items-end gap-2 sm:gap-4">
+                    <div className="flex flex-col items-center bg-black/40 border border-pink-500/15 rounded-xl px-3 py-2 min-w-[64px]">
+                      <SimpleCounter value={hours} fontSize={36} textColor="#ec4899" fontWeight={900} />
+                      <span className="text-white/30 text-[9px] uppercase tracking-wider mt-1">heures</span>
                     </div>
-                    <span className="text-green-500 font-bold text-xl mb-3">:</span>
-                    <div className="flex flex-col items-center">
-                      <div className="scale-75 sm:scale-90">
-                        <SimpleCounter value={minutes} fontSize={36} textColor="#22c55e" fontWeight={900} />
-                      </div>
-                      <span className="text-white/30 text-[9px] uppercase tracking-wider">min</span>
+                    <span className="text-pink-500/60 font-bold text-2xl pb-4">:</span>
+                    <div className="flex flex-col items-center bg-black/40 border border-pink-500/15 rounded-xl px-3 py-2 min-w-[64px]">
+                      <SimpleCounter value={minutes} fontSize={36} textColor="#ec4899" fontWeight={900} />
+                      <span className="text-white/30 text-[9px] uppercase tracking-wider mt-1">min</span>
                     </div>
-                    <span className="text-green-500 font-bold text-xl mb-3">:</span>
-                    <div className="flex flex-col items-center">
-                      <div className="scale-75 sm:scale-90">
-                        <SimpleCounter value={seconds} fontSize={36} textColor="#22c55e" fontWeight={900} />
-                      </div>
-                      <span className="text-white/30 text-[9px] uppercase tracking-wider">sec</span>
+                    <span className="text-pink-500/60 font-bold text-2xl pb-4">:</span>
+                    <div className="flex flex-col items-center bg-black/40 border border-pink-500/15 rounded-xl px-3 py-2 min-w-[64px]">
+                      <SimpleCounter value={seconds} fontSize={36} textColor="#ec4899" fontWeight={900} />
+                      <span className="text-white/30 text-[9px] uppercase tracking-wider mt-1">sec</span>
                     </div>
                   </div>
                 </div>
 
+                {/* Séparateur */}
+                <div className="h-px bg-pink-500/10 mb-6" />
+
                 {/* Champ mot de passe */}
                 <div className="space-y-4 sm:space-y-5">
                   <div>
-                    <label htmlFor="password" className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-white/70 mb-2 uppercase tracking-wider">
-                      <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <label htmlFor="password" className="flex items-center gap-2 text-sm font-bold text-white mb-2 uppercase tracking-[0.15em]">
+                      <svg className="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
                       Mot de passe
@@ -145,20 +142,16 @@ export default function HomePage() {
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 sm:px-5 py-3 sm:py-4 pr-12 text-sm sm:text-base bg-black/50 border-2 border-green-500/20 rounded-xl text-white focus:outline-none focus:border-green-500/60 transition-all placeholder-white/20 shadow-inner"
+                        className="w-full px-4 py-3.5 pr-12 text-base bg-black/70 border-2 border-pink-500/50 rounded-xl text-white focus:outline-none focus:border-pink-500 focus:shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all placeholder-white/50"
                         placeholder="Entrez votre code d'accès..."
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-green-400 transition-colors focus:outline-none"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-pink-400 transition-colors focus:outline-none"
                         aria-label={showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"}
                       >
-                        {showPassword ? (
-                          <FaEyeSlash className="w-5 h-5" />
-                        ) : (
-                          <FaEye className="w-5 h-5" />
-                        )}
+                        {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -171,11 +164,67 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>{/* fin contenu z-10 */}
+            </div>{/* fin login box */}
           </div>
         </div>
       </main>
 
+      {/* Modal redirection */}
+      {modal?.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setModal(null)}>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+          {/* Box */}
+          <div
+            className="relative z-10 bg-black/90 border-2 border-pink-500/50 rounded-2xl max-w-sm w-full overflow-hidden text-center shadow-[0_0_40px_rgba(236,72,153,0.4),inset_0_0_20px_rgba(236,72,153,0.05)]"
+            style={{ animation: 'modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Logo pleine largeur en haut */}
+            <div className="w-full h-48 relative">
+              <Image src={logoSrc} alt="Arai Farmers" className="w-full h-full object-cover" fill />
+              {/* Dégradé bas pour transition douce */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90" />
+              {/* Glow border bottom */}
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-pink-500/40 shadow-[0_0_10px_rgba(236,72,153,0.6)]" />
+            </div>
+
+            {/* Contenu */}
+            <div className="px-6 pb-6 pt-4">
+              <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Redirection</p>
+              <h3 className="text-white font-bold text-xl mb-2">{modal.label}</h3>
+              <p className="text-white/70 text-sm mb-6">
+                Vous allez être redirigé vers notre page <span className="text-pink-400 font-semibold">{modal.label}</span>. Continuer ?
+              </p>
+
+              {/* Boutons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setModal(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-all text-sm font-semibold"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => { window.open(modal.url, '_blank'); setModal(null); }}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] transition-all"
+                >
+                  Continuer →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes modalIn {
+              0%   { opacity: 0; transform: scale(0.85); }
+              100% { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ interface GlassIconItem {
   color: string;
   label: string;
   customClass?: string;
+  onClick?: () => void;
 }
 
 const gradientMapping: Record<string, string> = {
@@ -29,7 +30,7 @@ const GlassIcons = ({ items, className }: { items: GlassIconItem[]; className?: 
   return (
     <div className={`icon-btns ${className || ''}`}>
       {items.map((item, index) => (
-        <button key={index} className={`icon-btn ${item.customClass || ''}`} aria-label={item.label} type="button">
+        <button key={index} className={`icon-btn ${item.customClass || ''}`} aria-label={item.label} type="button" onClick={item.onClick}>
           <span className="icon-btn__back" style={getBackgroundStyle(item.color)}></span>
           <span className="icon-btn__front">
             <span className="icon-btn__icon" aria-hidden="true">

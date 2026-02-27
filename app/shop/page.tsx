@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import logoSrc from '../Logo/logo.jpeg';
 import Particles from '../components/Particles';
 import SimpleCounter from '../components/SimpleCounter';
 
@@ -74,8 +76,8 @@ export default function ShopPage() {
   const [timeLeft, setTimeLeft] = useState(86400); // 24 heures en secondes
 
   const particleColors = useMemo(() => [
-    '#00ff00', '#10b981', '#22c55e', '#34d399',
-    '#4ade80', '#86efac', '#00ff00', '#10b981'
+    '#ff00ff', '#cc44ff', '#ff44cc', '#dd00ff',
+    '#ff66ff', '#bb33ff', '#ff33dd', '#ee44ff'
   ], []);
 
   useEffect(() => {
@@ -109,32 +111,27 @@ export default function ShopPage() {
         <Particles particleCount={200} particleColors={particleColors} particleBaseSize={180} />
       </div>
 
-      {/* Voile vert transparent */}
-      <div className="absolute inset-0 bg-green-500/10"></div>
+      {/* Voile violet transparent */}
+      <div className="absolute inset-0 bg-purple-500/10"></div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b-2 border-green-500/50 shadow-[0_4px_30px_rgba(34,197,94,0.25)]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b-2 border-pink-500/50 shadow-[0_4px_30px_rgba(236,72,153,0.25)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
+          <div className="flex items-center justify-between h-20 sm:h-24">
 
             {/* Logo / Brand */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/home')}
-                className="group flex items-center justify-center w-9 h-9 rounded-xl bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 hover:border-green-500/60 transition-all shadow-[0_0_10px_rgba(34,197,94,0.15)]"
+                className="group flex items-center justify-center w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 hover:border-pink-500/60 transition-all shadow-[0_0_10px_rgba(236,72,153,0.15)]"
                 aria-label="Retour"
               >
-                <svg className="w-4 h-4 text-green-400 group-hover:text-green-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-pink-400 group-hover:text-pink-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </button>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.5)]">
-                  <span className="text-black font-black text-xs">AF</span>
-                </div>
-                <h1 className="text-base sm:text-lg md:text-xl font-bold text-white font-[family-name:var(--font-farisea)] tracking-wider">
-                  Arai <span className="text-green-400">Farmers</span>
-                </h1>
+              <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-pink-500/50 shadow-[0_0_16px_rgba(236,72,153,0.5)]">
+                <Image src={logoSrc} alt="Arai Farmers" className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -142,28 +139,28 @@ export default function ShopPage() {
             <div className="flex items-center gap-3 sm:gap-4">
 
               {/* Timer */}
-              <div className="flex items-center gap-2 bg-black/50 border border-green-500/30 rounded-xl px-3 py-1.5 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+              <div className="flex items-center gap-2 bg-black/50 border border-pink-500/30 rounded-xl px-3 py-1.5 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
+                <div className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse"></div>
                 <span className="text-white/50 text-[10px] uppercase tracking-wider hidden sm:block">Session</span>
                 <div className="flex items-center gap-1">
                   <SimpleCounter
                     value={Math.floor(timeLeft / 3600)}
                     fontSize={18}
-                    textColor="#22c55e"
+                    textColor="#ec4899"
                     fontWeight={900}
                   />
-                  <span className="text-green-500 font-bold text-sm">:</span>
+                  <span className="text-pink-500 font-bold text-sm">:</span>
                   <SimpleCounter
                     value={Math.floor((timeLeft % 3600) / 60)}
                     fontSize={18}
-                    textColor="#22c55e"
+                    textColor="#ec4899"
                     fontWeight={900}
                   />
-                  <span className="text-green-500 font-bold text-sm">:</span>
+                  <span className="text-pink-500 font-bold text-sm">:</span>
                   <SimpleCounter
                     value={timeLeft % 60}
                     fontSize={18}
-                    textColor="#22c55e"
+                    textColor="#ec4899"
                     fontWeight={900}
                   />
                 </div>
@@ -193,16 +190,16 @@ export default function ShopPage() {
       </header>
 
       {/* Second Header */}
-      <div className="fixed top-16 sm:top-20 left-0 right-0 z-40 bg-black/60 backdrop-blur-md border-b border-green-500/30 overflow-hidden">
+      <div className="fixed top-16 sm:top-20 left-0 right-0 z-40 bg-black/60 backdrop-blur-md border-b border-pink-500/30 overflow-hidden">
         <div className="flex items-center h-12 sm:h-14">
           <div className="animate-marquee whitespace-nowrap">
-            <span className="text-green-400 font-semibold text-sm sm:text-base mx-8">
+            <span className="text-pink-400 font-semibold text-sm sm:text-base mx-8">
               🚚 LIVRAISON PARTOUT EN ÎLE DE FRANCE OU REMISE EN MAIN PROPRE 🚚
             </span>
-            <span className="text-green-400 font-semibold text-sm sm:text-base mx-8">
+            <span className="text-pink-400 font-semibold text-sm sm:text-base mx-8">
               🚚 LIVRAISON PARTOUT EN ÎLE DE FRANCE OU REMISE EN MAIN PROPRE 🚚
             </span>
-            <span className="text-green-400 font-semibold text-sm sm:text-base mx-8">
+            <span className="text-pink-400 font-semibold text-sm sm:text-base mx-8">
               🚚 LIVRAISON PARTOUT EN ÎLE DE FRANCE OU REMISE EN MAIN PROPRE 🚚
             </span>
           </div>
@@ -225,14 +222,14 @@ export default function ShopPage() {
       `}</style>
 
       {/* Contenu au premier plan */}
-      <main className="relative z-10 min-h-screen px-4 pt-32 sm:pt-36 pb-8">
+      <main className="relative z-10 min-h-screen px-4 pt-36 sm:pt-40 pb-8">
         <div className="max-w-7xl mx-auto">
           {/* Filtres et recherche */}
           <div className="mb-8">
-            <div className="bg-black/60 backdrop-blur-md border border-green-500/30 rounded-2xl p-4 sm:p-5 shadow-[0_0_30px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.05)]">
+            <div className="bg-black/60 backdrop-blur-md border border-pink-500/30 rounded-2xl p-4 sm:p-5 shadow-[0_0_30px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.05)]">
               {/* Barre de recherche */}
               <div className="relative mb-4">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -240,12 +237,12 @@ export default function ShopPage() {
                   placeholder="Rechercher un produit..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-black/50 border border-green-500/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-green-500/60 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-black/50 border border-pink-500/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-pink-500/60 transition-colors"
                 />
               </div>
 
               {/* Séparateur */}
-              <div className="h-px bg-green-500/10 mb-4" />
+              <div className="h-px bg-pink-500/10 mb-4" />
 
               {/* Catégories */}
               <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
@@ -255,8 +252,8 @@ export default function ShopPage() {
                     onClick={() => setSelectedCategory(category)}
                     className={`px-2 py-1.5 rounded-lg font-semibold text-[11px] sm:text-xs transition-all text-center truncate ${
                       selectedCategory === category
-                        ? 'bg-green-500 text-black shadow-[0_0_15px_rgba(34,197,94,0.5)]'
-                        : 'bg-black/40 text-white/70 border border-green-500/20 hover:border-green-500/50 hover:text-white'
+                        ? 'bg-pink-500 text-black shadow-[0_0_15px_rgba(236,72,153,0.5)]'
+                        : 'bg-black/40 text-white/70 border border-pink-500/20 hover:border-pink-500/50 hover:text-white'
                     }`}
                   >
                     {category}
@@ -271,11 +268,11 @@ export default function ShopPage() {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-black/60 backdrop-blur-md border border-green-500/50 sm:border-2 rounded-lg sm:rounded-xl p-2 sm:p-4 hover:border-green-500/80 transition-all shadow-[0_0_30px_rgba(34,197,94,0.3),0_0_60px_rgba(34,197,94,0.2),inset_0_0_20px_rgba(34,197,94,0.1)] hover:shadow-[0_0_40px_rgba(34,197,94,0.4),0_0_80px_rgba(34,197,94,0.3),inset_0_0_30px_rgba(34,197,94,0.15)]"
+                className="bg-black/60 backdrop-blur-md border border-pink-500/50 sm:border-2 rounded-lg sm:rounded-xl p-2 sm:p-4 hover:border-pink-500/80 transition-all shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.1)] hover:shadow-[0_0_40px_rgba(236,72,153,0.4),0_0_80px_rgba(236,72,153,0.3),inset_0_0_30px_rgba(236,72,153,0.15)]"
               >
                 {/* Image du produit */}
-                <div className="aspect-square bg-black/40 rounded-md sm:rounded-lg mb-2 sm:mb-3 flex items-center justify-center border border-green-500/30 sm:border-2">
-                  <div className="text-green-500/50 text-3xl sm:text-4xl">🌿</div>
+                <div className="aspect-square bg-black/40 rounded-md sm:rounded-lg mb-2 sm:mb-3 flex items-center justify-center border border-pink-500/30 sm:border-2">
+                  <div className="text-pink-500/50 text-3xl sm:text-4xl">🌿</div>
                 </div>
 
                 {/* Informations du produit */}
@@ -284,7 +281,7 @@ export default function ShopPage() {
                     <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-2">
                       {product.name}
                     </h3>
-                    <span className="px-1.5 sm:px-2 py-0.5 bg-green-500/20 border border-green-500/40 rounded text-green-400 text-[9px] sm:text-[10px] font-semibold whitespace-nowrap self-start">
+                    <span className="px-1.5 sm:px-2 py-0.5 bg-pink-500/20 border border-pink-500/40 rounded text-pink-400 text-[9px] sm:text-[10px] font-semibold whitespace-nowrap self-start">
                       {product.category}
                     </span>
                   </div>
@@ -293,11 +290,11 @@ export default function ShopPage() {
                     {product.description}
                   </p>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-1.5 sm:pt-2 border-t border-green-500/20 gap-1.5 sm:gap-0">
-                    <span className="text-base sm:text-lg font-bold text-green-400">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-1.5 sm:pt-2 border-t border-pink-500/20 gap-1.5 sm:gap-0">
+                    <span className="text-base sm:text-lg font-bold text-pink-400">
                       €{product.price.toFixed(2)}
                     </span>
-                    <button className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500 hover:bg-green-400 text-black font-semibold rounded-md sm:rounded-lg transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_rgba(34,197,94,0.6)] text-[10px] sm:text-xs">
+                    <button className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-1.5 bg-pink-500 hover:bg-pink-400 text-black font-semibold rounded-md sm:rounded-lg transition-all shadow-[0_0_15px_rgba(236,72,153,0.4)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)] text-[10px] sm:text-xs">
                       Voir détails
                     </button>
                   </div>
