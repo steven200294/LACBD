@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import logoSrc from '../Logo/logo.jpeg';
-import { FaInstagram, FaTiktok, FaTelegram, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaInstagram, FaTiktok, FaTelegram, FaWhatsapp, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { SiSignal } from 'react-icons/si';
 import { GiPotato } from 'react-icons/gi';
 import Button from '../components/Button';
 import SimpleCounter from '../components/SimpleCounter';
-import Particles from '../components/Particles';
+import Aurora from '../components/Aurora';
 import GlassIcons from '../components/GlassIcons';
 
 export default function HomePage() {
@@ -18,11 +18,6 @@ export default function HomePage() {
   const [showPassword, setShowPassword] = useState(false);
   const [timeLeft, setTimeLeft] = useState(86400);
   const [modal, setModal] = useState<{ open: boolean; label: string; url: string } | null>(null); // 24 heures en secondes
-
-  const particleColors = useMemo(() => [
-    '#ff00ff', '#cc44ff', '#ff44cc', '#dd00ff',
-    '#ff66ff', '#bb33ff', '#ff33dd', '#ee44ff'
-  ], []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -41,9 +36,14 @@ export default function HomePage() {
       {/* Fond noir */}
       <div className="absolute inset-0 bg-black"></div>
 
-      {/* Particules */}
-      <div className="absolute inset-0">
-        <Particles particleCount={200} particleColors={particleColors} particleBaseSize={180} />
+      {/* Aurora background */}
+      <div className="absolute inset-0 z-0">
+        <Aurora
+          colorStops={["#ec4899", "#d946ef", "#7c3aed"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={1}
+        />
       </div>
 
       {/* Voile violet transparent */}
@@ -58,13 +58,14 @@ export default function HomePage() {
             <div className="bg-black/40 backdrop-blur-sm border-2 border-pink-500/50 rounded-2xl px-6 sm:px-10 md:px-14 py-4 sm:py-6 md:py-8 shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.1)]">
               {/* Réseaux sociaux + Contact direct */}
               <GlassIcons
-                className="cols-5"
+                className="cols-6"
                 items={[
                   { icon: <FaInstagram />, color: 'purple', label: 'Instagram', onClick: () => setModal({ open: true, label: 'Instagram', url: 'https://instagram.com' }) },
                   { icon: <FaTiktok />, color: 'indigo', label: 'TikTok', onClick: () => setModal({ open: true, label: 'TikTok', url: 'https://tiktok.com' }) },
                   { icon: <FaTelegram />, color: 'blue', label: 'Telegram', onClick: () => setModal({ open: true, label: 'Telegram', url: 'https://t.me' }) },
+                  { icon: <FaWhatsapp />, color: 'purple', label: 'WhatsApp', onClick: () => setModal({ open: true, label: 'WhatsApp', url: 'https://wa.me' }) },
                   { icon: <GiPotato />, color: 'orange', label: 'Potato', onClick: () => setModal({ open: true, label: 'Potato', url: 'https://potato.im' }) },
-                  { icon: <SiSignal />, color: 'green', label: 'Signal', onClick: () => setModal({ open: true, label: 'Signal', url: 'https://signal.me' }) },
+                  { icon: <SiSignal />, color: 'blue', label: 'Signal', onClick: () => setModal({ open: true, label: 'Signal', url: 'https://signal.me' }) },
                 ]}
               />
             </div>

@@ -11,6 +11,10 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
+.icon-btns.cols-6 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .icon-btns.cols-4 {
   grid-template-columns: repeat(2, 1fr);
 }
@@ -113,6 +117,10 @@
 
   .icon-btns.cols-5 {
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  .icon-btns.cols-6 {
+    grid-template-columns: repeat(6, 1fr);
   }
 
   .icon-btns.cols-4 {

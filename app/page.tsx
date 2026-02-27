@@ -1,20 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import logoSrc from './Logo/logo.jpeg';
-import Particles from "./components/Particles";
+import Aurora from "./components/Aurora";
 import Button from "./components/Button";
 
 export default function Home() {
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const particleColors = useMemo(() => [
-    '#ff00ff', '#cc44ff', '#ff44cc', '#dd00ff',
-    '#ff66ff', '#bb33ff', '#ff33dd', '#ee44ff'
-  ], []);
 
   const handleEnter = async () => {
     const btn = buttonRef.current;
@@ -66,18 +61,13 @@ export default function Home() {
       {/* Voile violet transparent */}
       <div className="absolute inset-0 bg-purple-500/10"></div>
 
-      {/* Particules en arrière-plan */}
+      {/* Aurora en arrière-plan */}
       <div className="absolute inset-0 z-0">
-        <Particles
-          particleColors={particleColors}
-          particleCount={200}
-          particleSpread={10}
-          speed={0.1}
-          particleBaseSize={180}
-          moveParticlesOnHover
-          alphaParticles={false}
-          disableRotation={false}
-          pixelRatio={1}
+        <Aurora
+          colorStops={["#ec4899", "#d946ef", "#7c3aed"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={1}
         />
       </div>
 
