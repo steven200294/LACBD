@@ -1,95 +1,171 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import logoSrc from '../Logo/logo.jpeg';
 import Aurora from '../components/Aurora';
 import SimpleCounter from '../components/SimpleCounter';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaTelegram } from 'react-icons/fa';
+import { supabase } from '../lib/supabase';
 
 interface Product {
   id: number;
   name: string;
   price: number;
   description: string;
-  image: string;
   category: string;
+  media_url?: string;
+  media_type?: 'image' | 'video';
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "CBD OIL 10%",
-    price: 29.99,
-    description: "Huile CBD premium 10% - 10ml",
-    image: "/products/cbd-oil.jpg",
-    category: "PHARMACIE 💊⚕️"
-  },
-  {
-    id: 2,
-    name: "CBD FLOWERS",
-    price: 19.99,
-    description: "Fleurs CBD Indoor - 5g",
-    image: "/products/cbd-flower.jpg",
-    category: "WEED 🍀"
-  },
-  {
-    id: 3,
-    name: "CBD HASH",
-    price: 34.99,
-    description: "Hash CBD artisanal - 3g",
-    image: "/products/cbd-hash.jpg",
-    category: "HASH 🍫"
-  },
-  {
-    id: 4,
-    name: "CBD VAPE PEN",
-    price: 39.99,
-    description: "Vape Pen jetable CBD 800 puffs",
-    image: "/products/cbd-vape.jpg",
-    category: "AUTRES 🪄"
-  },
-  {
-    id: 5,
-    name: "CBD CREAM",
-    price: 34.99,
-    description: "Crème CBD apaisante - 50ml",
-    image: "/products/cbd-cream.jpg",
-    category: "PHARMACIE 💊⚕️"
-  },
-  {
-    id: 6,
-    name: "CBD CAPSULES",
-    price: 44.99,
-    description: "Capsules CBD 25mg - 30 pcs",
-    image: "/products/cbd-capsules.jpg",
-    category: "PHARMACIE 💊⚕️"
-  }
-];
+interface ProductMedia {
+  id: number;
+  product_id: number;
+  media_url: string;
+  media_type: 'image' | 'video';
+  position: number;
+}
+
+interface ProductVariation {
+  id: number;
+  product_id: number;
+  title: string;
+  price: number;
+  position: number;
+}
 
 const categories = ["Tous", "WEED 🍀", "HASH 🍫", "PHARMACIE 💊⚕️", "AUTRES 🪄"];
 
 export default function ShopPage() {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchTerm, setSearchTerm] = useState("");
-  const [timeLeft, setTimeLeft] = useState(86400); // 24 heures en secondes
+  const [timeLeft, setTimeLeft] = useState(0);
   const [singleCol, setSingleCol] = useState(false);
+  const [allMedia, setAllMedia] = useState<Record<number, ProductMedia[]>>({});
+  const [allVariations, setAllVariations] = useState<Record<number, ProductVariation[]>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [sessionValid, setSessionValid] = useState(false);
+
+  // Auto-slide galerie toutes les 3 secondes
+  useEffect(() => {
+    if (!detailProduct) return;
+    const gallery = getGalleryItems(detailProduct);
+    if (gallery.length <= 1) return;
+    const interval = setInterval(() => {
+      setGalleryIndex(prev => (prev + 1) % gallery.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailProduct, allMedia]);
+
+  const fetchProducts = useCallback(async () => {
+    const { data } = await supabase.from('products').select('*').order('id');
+    if (data) setProducts(data);
+  }, []);
+
+  const fetchMedia = useCallback(async () => {
+    const { data } = await supabase.from('product_media').select('*').order('position');
+    if (data) {
+      const grouped: Record<number, ProductMedia[]> = {};
+      data.forEach((m: ProductMedia) => {
+        if (!grouped[m.product_id]) grouped[m.product_id] = [];
+        grouped[m.product_id].push(m);
+      });
+      setAllMedia(grouped);
+    }
+  }, []);
+
+  const fetchVariations = useCallback(async () => {
+    const { data } = await supabase.from('product_variations').select('*').order('position');
+    if (data) {
+      const grouped: Record<number, ProductVariation[]> = {};
+      data.forEach((v: ProductVariation) => {
+        if (!grouped[v.product_id]) grouped[v.product_id] = [];
+        grouped[v.product_id].push(v);
+      });
+      setAllVariations(grouped);
+    }
+  }, []);
 
   useEffect(() => {
+    fetchProducts();
+    fetchMedia();
+    fetchVariations();
+  }, [fetchProducts, fetchMedia, fetchVariations]);
+
+  // Vérification de session côté Supabase
+  useEffect(() => {
+    async function verifySession() {
+      const code = sessionStorage.getItem('session_code');
+      const expiresAt = sessionStorage.getItem('session_expires_at');
+
+      if (!code || !expiresAt) {
+        router.push('/home');
+        return;
+      }
+
+      // Vérifier que le code existe encore en base
+      const { data } = await supabase
+        .from('passwords')
+        .select('id, created_at')
+        .eq('code', code)
+        .limit(1);
+
+      if (!data || data.length === 0) {
+        // Code supprimé ou inexistant
+        sessionStorage.removeItem('session_code');
+        sessionStorage.removeItem('session_expires_at');
+        router.push('/home');
+        return;
+      }
+
+      // Vérifier expiration réelle depuis la DB
+      const createdAt = new Date(data[0].created_at).getTime();
+      const realExpiresAt = createdAt + 24 * 60 * 60 * 1000;
+      if (Date.now() >= realExpiresAt) {
+        sessionStorage.removeItem('session_code');
+        sessionStorage.removeItem('session_expires_at');
+        router.push('/home');
+        return;
+      }
+
+      // Mettre à jour l'expiration réelle
+      sessionStorage.setItem('session_expires_at', realExpiresAt.toString());
+      setSessionValid(true);
+    }
+
+    verifySession();
+  }, [router]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!sessionValid) return;
+    const expiresAt = sessionStorage.getItem('session_expires_at');
+    if (!expiresAt) return;
+
+    const calcTimeLeft = () => {
+      const remaining = Math.max(0, Math.floor((parseInt(expiresAt) - Date.now()) / 1000));
+      return remaining;
+    };
+
+    setTimeLeft(calcTimeLeft());
+
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          router.push('/');
-          return 0;
-        }
-        return prev - 1;
-      });
+      const remaining = calcTimeLeft();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        sessionStorage.removeItem('session_code');
+        sessionStorage.removeItem('session_expires_at');
+        router.push('/home');
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [router]);
+  }, [router, sessionValid]);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "Tous" || product.category === selectedCategory;
@@ -98,8 +174,38 @@ export default function ShopPage() {
     return matchesCategory && matchesSearch;
   });
 
+  function openDetail(product: Product) {
+    setDetailProduct(product);
+    setGalleryIndex(0);
+  }
+
+  // Build gallery items for a product: cover + product_media
+  function getGalleryItems(product: Product): { url: string; type: 'image' | 'video' }[] {
+    const items: { url: string; type: 'image' | 'video' }[] = [];
+    if (product.media_url) {
+      items.push({ url: product.media_url, type: product.media_type || 'image' });
+    }
+    const extra = allMedia[product.id] || [];
+    extra.forEach(m => {
+      // Avoid duplicate with cover
+      if (m.media_url !== product.media_url) {
+        items.push({ url: m.media_url, type: m.media_type });
+      }
+    });
+    return items;
+  }
+
+  // Écran noir pendant la vérification (empêche de voir le contenu)
+  if (!sessionValid) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full">
       {/* Fond noir */}
       <div className="absolute inset-0 bg-black"></div>
 
@@ -136,20 +242,18 @@ export default function ShopPage() {
                 <Image src={logoSrc} alt="Arai Farmers" className="w-full h-full object-cover" />
               </div>
               <a
-                href="https://wa.me"
+                href="https://t.me/wolfdrop31"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-14 h-14 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 hover:border-pink-500/60 transition-all shadow-[0_0_10px_rgba(236,72,153,0.15)]"
-                aria-label="WhatsApp"
+                aria-label="Telegram"
               >
-                <FaWhatsapp className="w-9 h-9 text-pink-400" />
+                <FaTelegram className="w-9 h-9 text-pink-400" />
               </a>
             </div>
 
-            {/* Timer + Déconnexion */}
+            {/* Timer */}
             <div className="flex items-center gap-3 sm:gap-4">
-
-              {/* Timer */}
               <div className="flex items-center gap-2 bg-black/50 border border-pink-500/30 rounded-xl px-3 py-1.5 shadow-[0_0_15px_rgba(236,72,153,0.15)]">
                 <div className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse"></div>
                 <span className="text-white/50 text-[10px] uppercase tracking-wider hidden sm:block">Session</span>
@@ -176,13 +280,12 @@ export default function ShopPage() {
                   />
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </header>
 
-      {/* Second Header */}
+      {/* Second Header - Marquee */}
       <div className="fixed top-16 sm:top-20 left-0 right-0 z-40 bg-black/60 backdrop-blur-md border-b border-pink-500/30 overflow-hidden">
         <div className="flex items-center h-16 sm:h-20 overflow-hidden">
           <div className="animate-marquee flex whitespace-nowrap">
@@ -230,9 +333,8 @@ export default function ShopPage() {
               {/* Séparateur */}
               <div className="h-px bg-pink-500/10 mb-4" />
 
-              {/* Catégories — grille 3 colonnes mobile, flex desktop */}
+              {/* Catégories */}
               <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
-                {/* Bouton toggle vue — mobile uniquement, en premier */}
                 <button
                   onClick={() => setSingleCol(!singleCol)}
                   className="sm:hidden flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/40 border border-pink-500/20 hover:border-pink-500/50 transition-all text-pink-400 font-semibold text-sm"
@@ -268,42 +370,79 @@ export default function ShopPage() {
 
           {/* Grille de produits */}
           <div className={`grid gap-2 sm:gap-4 ${singleCol ? 'grid-cols-1' : 'grid-cols-2'} sm:grid-cols-2 lg:grid-cols-4`}>
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-black/60 backdrop-blur-md border border-pink-500/50 sm:border-2 rounded-lg sm:rounded-xl p-2 sm:p-4 hover:border-pink-500/80 transition-all shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.1)] hover:shadow-[0_0_40px_rgba(236,72,153,0.4),0_0_80px_rgba(236,72,153,0.3),inset_0_0_30px_rgba(236,72,153,0.15)]"
-              >
-                {/* Image du produit */}
-                <div className="aspect-square bg-black/40 rounded-md sm:rounded-lg mb-2 sm:mb-3 flex items-center justify-center border border-pink-500/30 sm:border-2">
-                  <div className="text-pink-500/50 text-3xl sm:text-4xl">🌿</div>
-                </div>
+            {filteredProducts.map((product) => {
+              const variations = allVariations[product.id] || [];
+              const mediaCount = (allMedia[product.id]?.length || 0) + (product.media_url ? 1 : 0);
 
-                {/* Informations du produit */}
-                <div className="space-y-1 sm:space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
-                    <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <span className="px-1.5 sm:px-2 py-0.5 bg-pink-500/20 border border-pink-500/40 rounded text-pink-400 text-[9px] sm:text-[10px] font-semibold whitespace-nowrap self-start">
-                      {product.category}
-                    </span>
+              return (
+                <div
+                  key={product.id}
+                  className="bg-black/60 backdrop-blur-md border border-pink-500/50 sm:border-2 rounded-lg sm:rounded-xl p-2 sm:p-4 hover:border-pink-500/80 transition-all shadow-[0_0_30px_rgba(236,72,153,0.3),0_0_60px_rgba(236,72,153,0.2),inset_0_0_20px_rgba(236,72,153,0.1)] hover:shadow-[0_0_40px_rgba(236,72,153,0.4),0_0_80px_rgba(236,72,153,0.3),inset_0_0_30px_rgba(236,72,153,0.15)] flex flex-col"
+                >
+                  {/* Image du produit */}
+                  <div className="aspect-square bg-black/40 rounded-md sm:rounded-lg mb-2 sm:mb-3 overflow-hidden border border-pink-500/30 sm:border-2 relative">
+                    {product.media_url ? (
+                      product.media_type === 'video' ? (
+                        <video src={product.media_url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
+                      ) : (
+                        <img src={product.media_url} alt={product.name} className="w-full h-full object-cover" />
+                      )
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="text-pink-500/50 text-3xl sm:text-4xl">🌿</div>
+                      </div>
+                    )}
+                    {/* Badge nombre de médias */}
+                    {mediaCount > 1 && (
+                      <div className="absolute top-1.5 right-1.5 bg-black/70 border border-pink-500/30 rounded-full px-1.5 py-0.5 flex items-center gap-1">
+                        <svg className="w-2.5 h-2.5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-[9px] text-pink-400 font-bold">{mediaCount}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <p className="text-white/70 text-[10px] sm:text-xs line-clamp-2">
-                    {product.description}
-                  </p>
+                  {/* Informations du produit */}
+                  <div className="space-y-1 sm:space-y-2 flex-1 flex flex-col">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
+                      <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <span className="px-1.5 sm:px-2 py-0.5 bg-pink-500/20 border border-pink-500/40 rounded text-pink-400 text-[9px] sm:text-[10px] font-semibold whitespace-nowrap self-start">
+                        {product.category}
+                      </span>
+                    </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-1.5 sm:pt-2 border-t border-pink-500/20 gap-1.5 sm:gap-0">
-                    <span className="text-base sm:text-lg font-bold text-pink-400">
-                      €{product.price.toFixed(2)}
-                    </span>
-                    <button className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-1.5 bg-pink-500 hover:bg-pink-400 text-black font-semibold rounded-md sm:rounded-lg transition-all shadow-[0_0_15px_rgba(236,72,153,0.4)] hover:shadow-[0_0_25px_rgba(236,72,153,0.6)] text-[10px] sm:text-xs">
-                      Voir détails
+                    <p className="text-white/70 text-[10px] sm:text-xs line-clamp-2">
+                      {product.description}
+                    </p>
+
+                    <div className="flex-1" />
+
+                    <div className="pt-1.5 sm:pt-2 border-t border-pink-500/20">
+                      {variations.length > 0 ? (
+                        <span className="text-sm sm:text-base font-bold text-pink-400">
+                          À partir de {Math.min(...variations.map(v => v.price)).toFixed(2)}€
+                        </span>
+                      ) : (
+                        <span className="text-base sm:text-lg font-bold text-pink-400">
+                          €{product.price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Bouton Voir plus */}
+                    <button
+                      onClick={() => openDetail(product)}
+                      className="w-full py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 font-bold text-xs sm:text-sm hover:bg-pink-500/25 hover:border-pink-500/50 transition-all"
+                    >
+                      Voir plus
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Message si aucun produit */}
@@ -316,6 +455,151 @@ export default function ShopPage() {
           )}
         </div>
       </main>
+
+      {/* ── Modal Détail Produit ── */}
+      {detailProduct && (() => {
+        const gallery = getGalleryItems(detailProduct);
+        const variations = allVariations[detailProduct.id] || [];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setDetailProduct(null)}>
+            <div
+              className="relative w-full max-w-sm mx-4 bg-black border-2 border-pink-500/50 rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto shadow-[0_0_60px_rgba(236,72,153,0.3)]"
+              style={{ animation: 'slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Galerie */}
+              {gallery.length > 0 ? (
+                <div className="relative w-full aspect-4/3 bg-black">
+                  {gallery[galleryIndex].type === 'video' ? (
+                    <video
+                      key={gallery[galleryIndex].url}
+                      src={gallery[galleryIndex].url}
+                      className="w-full h-full object-cover"
+                      muted autoPlay loop playsInline
+                    />
+                  ) : (
+                    <img
+                      src={gallery[galleryIndex].url}
+                      alt={detailProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+
+                  {/* Navigation galerie */}
+                  {gallery.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setGalleryIndex(prev => prev > 0 ? prev - 1 : gallery.length - 1)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-black/80 transition-all"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setGalleryIndex(prev => prev < gallery.length - 1 ? prev + 1 : 0)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-black/80 transition-all"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+
+                      {/* Dots */}
+                      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {gallery.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setGalleryIndex(i)}
+                            className={`w-2 h-2 rounded-full transition-all ${i === galleryIndex ? 'bg-pink-400 w-4' : 'bg-white/30'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Bouton fermer */}
+                  <button
+                    onClick={() => setDetailProduct(null)}
+                    className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-black/80 transition-all"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <div className="w-full aspect-video bg-black/40 flex items-center justify-center">
+                  <span className="text-5xl">🌿</span>
+                </div>
+              )}
+
+              {/* Contenu */}
+              <div className="p-4">
+                {/* Catégorie */}
+                <span className="inline-block px-2 py-0.5 bg-pink-500/20 border border-pink-500/40 rounded text-pink-400 text-[10px] font-semibold mb-2">
+                  {detailProduct.category}
+                </span>
+
+                {/* Nom */}
+                <h2 className="text-base font-black text-white mb-1">{detailProduct.name}</h2>
+
+                {/* Description */}
+                <p className="text-white/70 text-xs mb-3 leading-relaxed">{detailProduct.description}</p>
+
+                {/* Séparateur */}
+                <div className="h-px bg-pink-500/20 mb-3" />
+
+                {/* Variations de prix */}
+                {variations.length > 0 ? (
+                  <div className="mb-4">
+                    <h3 className="text-[10px] text-pink-400/70 uppercase tracking-wide font-bold mb-2">Prix & Variations</h3>
+                    <div className="space-y-1.5">
+                      {variations.map(v => (
+                        <div key={v.id} className="flex items-center justify-between bg-white/5 border border-pink-500/20 rounded-lg px-3 py-2">
+                          <span className="text-white font-semibold text-xs">{v.title}</span>
+                          <span className="text-pink-400 font-black text-sm">{v.price.toFixed(2)}€</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-3">
+                    <span className="text-xl font-black text-pink-400">€{detailProduct.price.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {/* Bouton Commander via Telegram */}
+                <a
+                  href="https://t.me/wolfdrop31"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-fuchsia-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] transition-all"
+                >
+                  <FaTelegram className="w-5 h-5" />
+                  Commander sur Telegram
+                </a>
+
+                {/* Bouton Fermer */}
+                <button
+                  onClick={() => setDetailProduct(null)}
+                  className="w-full py-2 mt-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/40 text-sm transition-all"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+
+            <style>{`
+              @keyframes slideUp {
+                0%   { opacity: 0; transform: translateY(40px) scale(0.97); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+              }
+            `}</style>
+          </div>
+        );
+      })()}
     </div>
   );
 }

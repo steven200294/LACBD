@@ -11,13 +11,15 @@ import Button from '../components/Button';
 import SimpleCounter from '../components/SimpleCounter';
 import Aurora from '../components/Aurora';
 import GlassIcons from '../components/GlassIcons';
+import { supabase } from '../lib/supabase';
 
 export default function HomePage() {
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [timeLeft, setTimeLeft] = useState(86400);
-  const [modal, setModal] = useState<{ open: boolean; label: string; url: string } | null>(null); // 24 heures en secondes
+  const [modal, setModal] = useState<{ open: boolean; label: string; url: string } | null>(null);
+  const [loginError, setLoginError] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,7 +34,7 @@ export default function HomePage() {
   const seconds = timeLeft % 60;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full">
       {/* Fond noir */}
       <div className="absolute inset-0 bg-black"></div>
 
@@ -60,12 +62,12 @@ export default function HomePage() {
               <GlassIcons
                 className="cols-6"
                 items={[
-                  { icon: <FaInstagram />, color: 'purple', label: 'Instagram', onClick: () => setModal({ open: true, label: 'Instagram', url: 'https://instagram.com' }) },
+                  { icon: <FaInstagram />, color: 'purple', label: 'Instagram', onClick: () => setModal({ open: true, label: 'Instagram', url: 'https://www.instagram.com/araifarmer?igsh=NnlnODl6a3RqOWh6&utm_source=qr' }) },
                   { icon: <FaTiktok />, color: 'indigo', label: 'TikTok', onClick: () => setModal({ open: true, label: 'TikTok', url: 'https://tiktok.com' }) },
-                  { icon: <FaTelegram />, color: 'blue', label: 'Telegram', onClick: () => setModal({ open: true, label: 'Telegram', url: 'https://t.me' }) },
+                  { icon: <FaTelegram />, color: 'blue', label: 'Telegram', onClick: () => setModal({ open: true, label: 'Telegram', url: 'https://t.me/wolfdrop31' }) },
                   { icon: <FaWhatsapp />, color: 'purple', label: 'WhatsApp', onClick: () => setModal({ open: true, label: 'WhatsApp', url: 'https://wa.me' }) },
-                  { icon: <GiPotato />, color: 'orange', label: 'Potato', onClick: () => setModal({ open: true, label: 'Potato', url: 'https://potato.im' }) },
-                  { icon: <SiSignal />, color: 'blue', label: 'Signal', onClick: () => setModal({ open: true, label: 'Signal', url: 'https://signal.me' }) },
+                  { icon: <GiPotato />, color: 'orange', label: 'Potato', onClick: () => setModal({ open: true, label: 'Potato', url: 'https://dlptm.org/araifarmerofficiel' }) },
+                  { icon: <SiSignal />, color: 'blue', label: 'Signal', onClick: () => setModal({ open: true, label: 'Signal', url: 'https://signal.me/#eu/Ot2I7xYoVPqkDikHH4ItvrE1kflitlL1VzcMJqWGEmLY7sbHq25AJJQDcnVlZ68Q' }) },
                 ]}
               />
             </div>
@@ -159,10 +161,31 @@ export default function HomePage() {
 
                   <div className="flex justify-center pt-2">
                     <div className="scale-90 sm:scale-95 md:scale-100">
-                      <Button onClick={() => router.push('/shop')}>
+                      <Button onClick={async () => {
+                        const code = password.toUpperCase().trim();
+                        if (!code) { setLoginError(true); return; }
+                        const { data } = await supabase
+                          .from('passwords')
+                          .select('id, created_at')
+                          .eq('code', code)
+                          .limit(1);
+                        if (data && data.length > 0) {
+                          setLoginError(false);
+                          const createdAt = new Date(data[0].created_at).getTime();
+                          const expiresAt = createdAt + 24 * 60 * 60 * 1000;
+                          sessionStorage.setItem('session_code', code);
+                          sessionStorage.setItem('session_expires_at', expiresAt.toString());
+                          router.push('/shop');
+                        } else {
+                          setLoginError(true);
+                        }
+                      }}>
                         SE CONNECTER
                       </Button>
                     </div>
+                    {loginError && (
+                      <p className="text-red-400 text-xs text-center font-semibold mt-2">Mot de passe incorrect</p>
+                    )}
                   </div>
                 </div>
                 </div>{/* fin contenu z-10 */}

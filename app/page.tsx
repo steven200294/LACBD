@@ -54,7 +54,7 @@ export default function Home() {
     );
   };
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full bg-black">
       {/* Fond noir */}
       <div className="absolute inset-0 bg-black"></div>
 
